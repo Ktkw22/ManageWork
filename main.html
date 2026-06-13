@@ -1,0 +1,92 @@
+<html>
+  <h2 class="sr-only">ระบบบันทึกงาน pixel cozy สไตล์ พร้อมกราฟภาพรวมรายเดือน ปุ่มแก้ไขและลบ</h2>
+
+<div class="app">
+  <div class="hdr">
+    <div>
+      <div class="hdr-title"><i class="ti ti-clipboard-text" aria-hidden="true" style="font-size:16px;vertical-align:-2px;margin-right:6px;"></i>Task Board</div>
+      <div class="hdr-sub">บันทึกงานที่ได้รับมอบหมาย</div>
+    </div>
+    <button class="add-btn" onclick="openModal()"><i class="ti ti-plus" aria-hidden="true" style="font-size:15px;"></i>เพิ่มงาน</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="s-total" style="color:var(--color-text-primary);">0</div><div class="stat-lbl">ทั้งหมด</div></div>
+    <div class="stat"><div class="stat-num" id="s-ip" style="color:#BA7517;">0</div><div class="stat-lbl">กำลังทำ</div></div>
+    <div class="stat"><div class="stat-num" id="s-done" style="color:#0F6E56;">0</div><div class="stat-lbl">เสร็จแล้ว</div></div>
+    <div class="stat"><div class="stat-num" id="s-over" style="color:#993C1D;">0</div><div class="stat-lbl">เกินกำหนด</div></div>
+  </div>
+
+  <div class="sec-lbl"><i class="ti ti-chart-bar" aria-hidden="true" style="vertical-align:-1px;margin-right:4px;"></i>ภาพรวมรายเดือน</div>
+  <div class="chart-wrap">
+    <div class="chart-top">
+      <div class="chart-title-txt">งานแต่ละเดือน ปี 2025</div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#1D9E75;"></div>เสร็จ</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#BA7517;"></div>กำลังทำ</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#7F77DD;"></div>รอดำเนินการ</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#D85A30;"></div>เกินกำหนด</div>
+      </div>
+    </div>
+    <div style="position:relative;width:100%;height:190px;"><canvas id="monthChart" role="img" aria-label="Stacked bar chart showing monthly task count by status for 2025">Monthly task overview by status.</canvas></div>
+  </div>
+
+  <div class="sec-lbl" style="margin-top:4px;"><i class="ti ti-list" aria-hidden="true" style="vertical-align:-1px;margin-right:4px;"></i>รายการงาน</div>
+  <div class="toolbar">
+    <select id="filter-status" onchange="renderAll()">
+      <option value="all">สถานะทั้งหมด</option>
+      <option value="todo">รอดำเนินการ</option>
+      <option value="inprogress">กำลังดำเนินการ</option>
+      <option value="review">รอตรวจสอบ</option>
+      <option value="done">เสร็จสิ้น</option>
+    </select>
+    <select id="filter-sort" onchange="renderAll()">
+      <option value="date">เรียงตามกำหนดส่ง</option>
+      <option value="status">เรียงตามสถานะ</option>
+      <option value="name">เรียงตามชื่อ</option>
+    </select>
+  </div>
+  <div class="task-list" id="task-list"></div>
+</div>
+
+<div class="modal-wrap" id="modal-wrap">
+  <div class="modal">
+    <h2 id="modal-title"><i class="ti ti-pencil-plus" aria-hidden="true" style="vertical-align:-2px;margin-right:6px;font-size:15px;"></i>เพิ่มงานใหม่</h2>
+    <div class="fg"><label>หัวข้องาน *</label><input type="text" id="f-title" placeholder="ชื่อหรือหัวข้อของงาน"></div>
+    <div class="fg"><label>เนื้อหาที่ต้องทำ</label><textarea id="f-todo" rows="2" placeholder="อธิบายสิ่งที่ต้องดำเนินการ..."></textarea></div>
+    <div class="fg"><label>ดำเนินการไปแล้ว</label><textarea id="f-done-txt" rows="2" placeholder="ความคืบหน้าที่ผ่านมา..."></textarea></div>
+    <div class="fg-row">
+      <div class="fg"><label>กำหนดเสร็จ</label><input type="date" id="f-due"></div>
+      <div class="fg"><label>สถานะ</label>
+        <select id="f-status">
+          <option value="todo">รอดำเนินการ</option>
+          <option value="inprogress">กำลังดำเนินการ</option>
+          <option value="review">รอตรวจสอบ</option>
+          <option value="done">เสร็จสิ้น</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg">
+      <label>ความคืบหน้า</label>
+      <input type="range" min="0" max="100" step="5" value="0" id="f-prog" oninput="document.getElementById('pv').textContent=this.value+'%'">
+      <div class="prog-val-lbl" id="pv">0%</div>
+    </div>
+    <div class="modal-acts">
+      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-save" onclick="saveTask()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-wrap" id="confirm-wrap">
+  <div class="confirm-box">
+    <p><i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:20px;display:block;margin:0 auto 10px;color:#D85A30;"></i>ลบงานนี้ใช่ไหม?<br>ไม่สามารถกู้คืนได้</p>
+    <div class="confirm-acts">
+      <button class="btn-confirm-no" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()"><i class="ti ti-trash" aria-hidden="true"></i> ลบ</button>
+    </div>
+  </div>
+</div>
+
+
+</html>
